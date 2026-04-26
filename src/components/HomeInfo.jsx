@@ -22,7 +22,7 @@ const renderContent ={
         Welcome to my portfolio! I'm <span className='font-bold'>Arsh</span>.
         <br/>
         A Machine Learning and Reinforcement Learning Engineer. 
-        <p className='text-center text-sm text-white-400 mt-2'>Drag Right to explore</p>
+        <p className='text-center text-sm text-brown-400 mt-2'>Scroll to explore</p>
         </h2>, 
         
         </div>

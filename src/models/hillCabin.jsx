@@ -6,212 +6,78 @@ Source: https://sketchfab.com/3d-models/cabin-on-the-hill-7c6de91d44e14814be0297
 Title: Cabin on the hill
 */
 
-import React, { useRef, useEffect } from 'react'
-import { useGLTF } from '@react-three/drei'
-import { useFrame, useThree } from '@react-three/fiber'
-import { a } from '@react-spring/three'
-import HillCabinScene from '../assets/3d/hillCabin22.glb'
+import React, { useRef } from 'react';
+import { useGLTF, useScroll } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
+import { a } from '@react-spring/three';
+import HillCabinScene from '../assets/3d/hillCabin22.glb';
 
 const HillCabin = ({ isRotating, setIsRotating, setCurrentStage, ...props }) => {
-  const hillCabinRef = useRef()
-  const { gl, viewport } = useThree()
-  const { nodes, materials } = useGLTF(HillCabinScene)
-
-  const lastX = useRef(0)
-  const rotationSpeed = useRef(0)
-  const dampingFactor = 0.95
-  const lastStage = useRef(null)
-
-  const handlePointerDown = (event) => {
-    event.stopPropagation()
-    event.preventDefault()
-    setIsRotating(true)
-    const clientX = event.touches ? event.touches[0].clientX : event.clientX
-    lastX.current = clientX
-  }
-
-  const handlePointerUp = (event) => {
-    event.stopPropagation()
-    event.preventDefault()
-    setIsRotating(false)
-  }
-
-  const handlePointerMove = (event) => {
-    event.stopPropagation()
-    event.preventDefault()
-    if (isRotating) {
-      const clientX = event.touches ? event.touches[0].clientX : event.clientX
-      const delta = (clientX - lastX.current) / viewport.width
-      hillCabinRef.current.rotation.y += delta * 0.01 * Math.PI
-      lastX.current = clientX
-      rotationSpeed.current = delta * 0.005 * Math.PI
-    }
-  }
-
-  const handleKeyDown = (event) => {
-    if (event.key === 'ArrowLeft') {
-      if (!isRotating) setIsRotating(true)
-      hillCabinRef.current.rotation.y += 0.01 * Math.PI
-    } else if (event.key === 'ArrowRight') {
-      if (!isRotating) setIsRotating(true)
-      hillCabinRef.current.rotation.y -= 0.01 * Math.PI
-    }
-  }
-
-  const handleKeyUp = (event) => {
-    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-      setIsRotating(false)
-    }
-  }
-
-  useEffect(() => {
-    const canvas = gl.domElement
-    canvas.addEventListener('pointerdown', handlePointerDown)
-    canvas.addEventListener('pointerup', handlePointerUp)
-    canvas.addEventListener('pointermove', handlePointerMove)
-    document.addEventListener('keydown', handleKeyDown)
-    document.addEventListener('keyup', handleKeyUp)
-
-    return () => {
-      canvas.removeEventListener('pointerdown', handlePointerDown)
-      canvas.removeEventListener('pointerup', handlePointerUp)
-      canvas.removeEventListener('pointermove', handlePointerMove)
-      document.removeEventListener('keydown', handleKeyDown)
-      document.removeEventListener('keyup', handleKeyUp)
-    }
-  }, [gl, handlePointerDown, handlePointerUp, handlePointerMove, handleKeyDown, handleKeyUp])
+  const hillCabinRef = useRef();
+  const scroll = useScroll(); 
+  const { nodes, materials } = useGLTF(HillCabinScene);
+  const lastStage = useRef(null);
 
   useFrame(() => {
-    if (!isRotating) {
-      rotationSpeed.current *= dampingFactor
-      if (Math.abs(rotationSpeed.current) < 0.001) rotationSpeed.current = 0
-      hillCabinRef.current.rotation.y += rotationSpeed.current
+    // 1. Smoothly rotate based on scroll progress
+    const rotationAmount = scroll.offset * Math.PI * 2;
+    
+    if (hillCabinRef.current) {
+      hillCabinRef.current.rotation.y = rotationAmount;
     }
 
-    // Stage detection (adjust ranges to match your model)
-    const rotation = hillCabinRef.current.rotation.y
-    const normalizedRotation = ((rotation % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)
+    // 2. Linear Stage Detection
+    // Since scroll.offset is always 0 to 1, we divide it into 4 equal sections
+    // This ensures they always show up as 1 -> 2 -> 3 -> 4
+    const scrollProgress = scroll.offset;
+    let newStage = null;
 
-    let newStage = null
-    // Example ranges – you'll need to calibrate these
-    switch (true) {
-      case normalizedRotation >= 5.45 && normalizedRotation <= 5.85:
-        newStage = 4
-        break
-      case normalizedRotation >= 0.85 && normalizedRotation <= 1.3:
-        newStage = 3
-        break
-      case normalizedRotation >= 2.4 && normalizedRotation <= 2.6:
-        newStage = 2
-        break
-      case normalizedRotation >= 4.25 && normalizedRotation <= 4.75:
-        newStage = 1
-        break
-      default:
-        newStage = null
-    }
+    if (scrollProgress >= 0.02 && scrollProgress <= 0.22) {
+    newStage = 1;
+  } else if (scrollProgress >= 0.28 && scrollProgress <= 0.48) {
+    newStage = 2;
+  } else if (scrollProgress >= 0.52 && scrollProgress <= 0.72) {
+    newStage = 3;
+  } else if (scrollProgress >= 0.78 && scrollProgress <= 0.98) {
+    newStage = 4;
+  }
 
-    if (newStage !== lastStage.current) {
-      lastStage.current = newStage
-      setCurrentStage(newStage)
-    }
-  })
+  if (newStage !== lastStage.current) {
+    lastStage.current = newStage;
+    setCurrentStage(newStage);
+  }
+});
+
   return (
-    <a.group ref={hillCabinRef}{...props}>
-      <mesh castShadow receiveShadow geometry={nodes.Cube.geometry} material={materials.Material} />
+    <a.group ref={hillCabinRef} {...props}>
+      <mesh 
+        castShadow 
+        receiveShadow 
+        geometry={nodes.Cube.geometry} 
+        material={materials.Material} 
+      />
       <group scale={0.01}>
+        {/* Snow Particles */}
         <group rotation={[-Math.PI / 2, 0, 0]} scale={100}>
-          <mesh
-            castShadow
-            receiveShadow
-            geometry={nodes.SnowParticles_SnowParticleTexture_0.geometry}
-            material={materials.SnowParticleTexture}
-          />
-          <mesh
-            castShadow
-            receiveShadow
-            geometry={nodes.SnowParticles_SnowParticleTexture_0001.geometry}
-            material={materials.SnowParticleTexture}
-          />
+          <mesh castShadow receiveShadow geometry={nodes.SnowParticles_SnowParticleTexture_0.geometry} material={materials.SnowParticleTexture} />
+          <mesh castShadow receiveShadow geometry={nodes.SnowParticles_SnowParticleTexture_0001.geometry} material={materials.SnowParticleTexture} />
         </group>
+        {/* Trees */}
         <group rotation={[-Math.PI / 2, 0, 0]} scale={100}>
-          <mesh
-            castShadow
-            receiveShadow
-            geometry={nodes.Trees_VertexColor_0.geometry}
-            material={materials.VertexColor}
-          />
-          <mesh
-            castShadow
-            receiveShadow
-            geometry={nodes.Trees_VertexColor_0001.geometry}
-            material={materials.VertexColor}
-          />
-          <mesh
-            castShadow
-            receiveShadow
-            geometry={nodes.Trees_VertexColor_0002.geometry}
-            material={materials.VertexColor}
-          />
-          <mesh
-            castShadow
-            receiveShadow
-            geometry={nodes.Trees_VertexColor_0003.geometry}
-            material={materials.VertexColor}
-          />
+          <mesh castShadow receiveShadow geometry={nodes.Trees_VertexColor_0.geometry} material={materials.VertexColor} />
+          <mesh castShadow receiveShadow geometry={nodes.Trees_VertexColor_0001.geometry} material={materials.VertexColor} />
+          <mesh castShadow receiveShadow geometry={nodes.Trees_VertexColor_0002.geometry} material={materials.VertexColor} />
+          <mesh castShadow receiveShadow geometry={nodes.Trees_VertexColor_0003.geometry} material={materials.VertexColor} />
         </group>
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Ground_VertexColor_0.geometry}
-          material={materials.VertexColor}
-          rotation={[-Math.PI / 2, 0, 0]}
-          scale={100}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.GroundTrees_VertexColor_0.geometry}
-          material={materials.VertexColor}
-          rotation={[-Math.PI / 2, 0, 0]}
-          scale={100}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.House_VertexColor_0.geometry}
-          material={materials.VertexColor}
-          position={[153.03, 1003.679, 452.871]}
-          rotation={[-Math.PI / 2, 0, 0]}
-          scale={100}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.MountainBased_SnowWithTexture_0.geometry}
-          material={materials.SnowWithTexture}
-          rotation={[-Math.PI / 2, 0, 0]}
-          scale={100}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Snow_SnowWithTexture_0.geometry}
-          material={materials.SnowWithTexture}
-          rotation={[-Math.PI / 2, 0, 0]}
-          scale={100}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.TreeOutline_VertexColor_0.geometry}
-          material={materials.VertexColor}
-          rotation={[-Math.PI / 2, 0, 0]}
-          scale={100}
-        />
+        <mesh castShadow receiveShadow geometry={nodes.Ground_VertexColor_0.geometry} material={materials.VertexColor} rotation={[-Math.PI / 2, 0, 0]} scale={100} />
+        <mesh castShadow receiveShadow geometry={nodes.GroundTrees_VertexColor_0.geometry} material={materials.VertexColor} rotation={[-Math.PI / 2, 0, 0]} scale={100} />
+        <mesh castShadow receiveShadow geometry={nodes.House_VertexColor_0.geometry} material={materials.VertexColor} position={[153.03, 1003.679, 452.871]} rotation={[-Math.PI / 2, 0, 0]} scale={100} />
+        <mesh castShadow receiveShadow geometry={nodes.MountainBased_SnowWithTexture_0.geometry} material={materials.SnowWithTexture} rotation={[-Math.PI / 2, 0, 0]} scale={100} />
+        <mesh castShadow receiveShadow geometry={nodes.Snow_SnowWithTexture_0.geometry} material={materials.SnowWithTexture} rotation={[-Math.PI / 2, 0, 0]} scale={100} />
+        <mesh castShadow receiveShadow geometry={nodes.TreeOutline_VertexColor_0.geometry} material={materials.VertexColor} rotation={[-Math.PI / 2, 0, 0]} scale={100} />
       </group>
     </a.group>
-  )
-}
+  );
+};
 
-export default HillCabin
+export default HillCabin;
