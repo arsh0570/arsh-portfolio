@@ -22,7 +22,9 @@ const renderContent ={
         Welcome to my portfolio! I'm <span className='font-bold'>Arsh</span>.
         <br/>
         A Machine Learning and Reinforcement Learning Engineer. 
-        <p className='text-center text-sm text-brown-400 mt-2'>Scroll to explore</p>
+        <p className='text-center text-sm mt-2 font-semibold' style={{ color: '#4169E1' }}>
+            Scroll to explore
+          </p>
         </h2>, 
         
         </div>
