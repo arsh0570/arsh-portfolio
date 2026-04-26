@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { Route, HashRouter as Router, Routes } from 'react-router-dom';
 import { Home, About, Projects, Contact } from './pages';
 import Navbar from './components/Navbar';
 import Logo from './components/Logo';
@@ -21,7 +21,7 @@ const App = () => {
     <ThemeProvider>
       <NavbarProvider>
         {/* Add the basename prop here */}
-        <Router basename={import.meta.env.BASE_URL}>
+        <Router>
           <ThemedMain>
             <Logo />
             <FloatingControls />
