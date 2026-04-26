@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useAnimations, useGLTF } from '@react-three/drei';
 import * as THREE from 'three'; // for Color
-import birdBlackScene from '../assets/3d/birdBlack.glb';
+import birdBlackScene from '../assets/3d/birdBlack_compressed.glb';
 
 const BirdBlack = ({ isRotating, birdColor = '#FBCEB1', ...props }) => {
   const ref = useRef();

@@ -1,4 +1,4 @@
-import { useState, Suspense, useEffect, useRef, use } from 'react';
+import { useState, Suspense, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { useTheme } from '../context/ThemeContext';
 import Loader from '../components/Loader';
@@ -6,37 +6,62 @@ import HomeInfo from '../components/HomeInfo';
 import DayGroup from '../components/DayGroup';
 import NightGroup from '../components/NightGroup';
 import sakura from '../assets/Nebula.mp3';
-
-import { soundoff } from '../assets/icons';
+import { soundoff, soundon } from '../assets/icons'; // Added soundon icon for logic
 
 const Home = () => {
-  const audioRef = useRef(new Audio(sakura));
-  audioRef.current.volume = 0.5;
-  audioRef.current.loop = true;
-
   const { theme } = useTheme();
+  
+  // Audio state and refs
+  const audioRef = useRef(null);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  
+  // 3D Scene state
   const [isRotating, setIsRotating] = useState(false);
   const [currentStage, setCurrentStage] = useState(1);
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
 
+  // 1. Initialize Audio only once when the component mounts
   useEffect(() => {
-    if (isAudioPlaying) {
-      audioRef.current.play();
-    } return () => {
-      audioRef.current.pause();
+    const audio = new Audio(sakura);
+    audio.volume = 0.5;
+    audio.loop = true;
+    audioRef.current = audio;
+
+    // Cleanup: Pause audio when navigating away from Home
+    return () => {
+      audio.pause();
+    };
+  }, []);
+
+  // 2. Handle Audio Play/Pause based on state
+  useEffect(() => {
+    if (audioRef.current) {
+      if (isAudioPlaying) {
+        audioRef.current.play().catch((err) => {
+          console.error("Audio playback failed. User interaction usually required first.", err);
+        });
+      } else {
+        audioRef.current.pause();
+      }
     }
-  } , [isAudioPlaying]);
+  }, [isAudioPlaying]);
 
   return (
     <section className="w-full h-screen relative">
-      <div className="absolute top-28 left-0 right-0 z-10 flex items-center justify-center">
-        {currentStage && <HomeInfo currentStage={currentStage} />}
+      {/* Overlay Information */}
+      <div className="absolute top-28 left-0 right-0 z-10 flex items-center justify-center pointer-events-none">
+        <div className="pointer-events-auto">
+          {currentStage && <HomeInfo currentStage={currentStage} />}
+        </div>
       </div>
 
+      {/* 3D Canvas */}
       <Canvas
-        className={`w-full h-screen bg-transparent ${isRotating ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className={`w-full h-screen bg-transparent ${
+          isRotating ? 'cursor-grabbing' : 'cursor-grab'
+        }`}
         camera={{ near: 0.1, far: 1000 }}
       >
+        {/* Important: Ensure Loader.jsx uses the <Html> tag from @react-three/drei */}
         <Suspense fallback={<Loader />}>
           {theme === 'day' ? (
             <DayGroup
@@ -54,14 +79,14 @@ const Home = () => {
         </Suspense>
       </Canvas>
 
-      <div className='absolute bottom-2 left-2'>
+      {/* Audio Toggle Button */}
+      <div className='absolute bottom-5 left-5 z-20'>
         <img
-          src={!isAudioPlaying ? soundoff : soundoff}
+          src={isAudioPlaying ? soundon : soundoff}
           alt="Toggle Sound"
-          className ='w-10 h-10 cursor-pointer object-contain'
+          className='w-12 h-12 cursor-pointer object-contain hover:scale-110 transition-transform'
           onClick={() => setIsAudioPlaying(!isAudioPlaying)}
         />
-
       </div>
     </section>
   );

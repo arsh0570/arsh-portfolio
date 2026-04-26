@@ -5,7 +5,7 @@ import NightSky from '../models/nightSky';
 import BirdBlack from '../models/birdBlack';
 import { useMediaQuery } from 'react-responsive';
 
-const DayGroup = ({ isRotating, setIsRotating, setCurrentStage }) => {
+const NightGroup = ({ isRotating, setIsRotating, setCurrentStage }) => {
   // Responsive adjustments
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
@@ -56,4 +56,4 @@ const DayGroup = ({ isRotating, setIsRotating, setCurrentStage }) => {
   );
 };
 
-export default DayGroup;
+export default NightGroup;

@@ -20,11 +20,12 @@ const App = () => {
   return (
     <ThemeProvider>
       <NavbarProvider>
-        <Router>
+        {/* Add the basename prop here */}
+        <Router basename={import.meta.env.BASE_URL}>
           <ThemedMain>
-            <Logo />                 {/* Always visible */}
-            <FloatingControls />     {/* Always visible */}
-            <Navbar />               {/* Can be hidden */}
+            <Logo />
+            <FloatingControls />
+            <Navbar />
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
