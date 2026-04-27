@@ -23,7 +23,7 @@ const renderContent ={
         <br/>
         A Machine Learning and Reinforcement Learning Engineer. 
         <p className='text-center text-sm mt-2 font-semibold' style={{ color: '#4169E1' }}>
-            Scroll to explore
+            Scroll down/up to explore
           </p>
         </h2>, 
         
