@@ -6,39 +6,18 @@ import Loader from '../components/Loader';
 import HomeInfo from '../components/HomeInfo';
 import DayGroup from '../components/DayGroup';
 import NightGroup from '../components/NightGroup';
-import sakura from '../assets/Nebula.mp3';
+
 import { soundoff, soundon } from '../assets/icons';
 
 const Home = () => {
   const { theme } = useTheme();
   
   const audioRef = useRef(null);
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  
   const [isRotating, setIsRotating] = useState(false);
   const [currentStage, setCurrentStage] = useState(1);
 
-  useEffect(() => {
-    const audio = new Audio(sakura);
-    audio.volume = 0.5;
-    audio.loop = true;
-    audioRef.current = audio;
-
-    return () => {
-      audio.pause();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (audioRef.current) {
-      if (isAudioPlaying) {
-        audioRef.current.play().catch((err) => {
-          console.error("Audio playback failed:", err);
-        });
-      } else {
-        audioRef.current.pause();
-      }
-    }
-  }, [isAudioPlaying]);
+  
 
   return (
     <section className="w-full h-screen relative">
@@ -74,14 +53,7 @@ const Home = () => {
         </Suspense>
       </Canvas>
 
-      <div className='absolute bottom-5 left-5 z-20'>
-        <img
-          src={isAudioPlaying ? soundon : soundoff}
-          alt="Toggle Sound"
-          className='w-12 h-12 cursor-pointer object-contain hover:scale-110 transition-transform'
-          onClick={() => setIsAudioPlaying(!isAudioPlaying)}
-        />
-      </div>
+      
     </section>
   );
 };
