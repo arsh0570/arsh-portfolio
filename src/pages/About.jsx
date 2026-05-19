@@ -5,13 +5,17 @@ import {
 
 import { CTA } from "../components";
 import { experiences, skills } from "../constants";
+import { useTheme } from '../context/ThemeContext';
 
 import "react-vertical-timeline-component/style.min.css";
 
 const About = () => {
+  const { theme } = useTheme();
+  const isNight = theme === 'night';
+  
   return (
     <section className='max-container'>
-      <h1 className='head-text'>
+      <h1 className ={`head-text bg-transparent ${theme === 'night' ? 'text-white' : 'text-black'}`}>
         Hello, I'm{""}
         <span className='blue-gradient_text font-semibold drop-shadow'>
           {" "}
@@ -20,14 +24,14 @@ const About = () => {
         👋
       </h1>
 
-      <div className='mt-5 flex flex-col gap-3 text-slate-500'>
+      <div className={`mt-5 flex flex-col gap-3 text-slate-500 bg-transparent ${theme === 'night' ? 'text-white' : 'text-black'}`}>
         <p>
           Machine Learning Researcher specializing in reinforcement learning, deep learning, and machine learning through hands‑on research and model development.
         </p>
       </div>
 
       <div className='py-10 flex flex-col'>
-        <h3 className='subhead-text'>My Skills</h3>
+        <h3 className={`subhead-textbg-transparent ${theme === 'night' ? 'text-white' : 'text-black'}`}>My Skills</h3>
 
         <div className='mt-16 flex flex-wrap gap-12'>
           {skills.map((skill) => (
@@ -53,8 +57,8 @@ const About = () => {
       </div>
 
       <div className='py-16'>
-        <h3 className='subhead-text'>Work Experience.</h3>
-        <div className='mt-5 flex flex-col gap-3 text-slate-500'>
+        <h3 className={`subhead-text bg-transparent ${theme === 'night' ? 'text-white' : 'text-black'}`}>Work Experience.</h3>
+        <div className={`mt-5 flex flex-col gap-3 text-slate-500 bg-transparent ${theme === 'night' ? 'text-white' : 'text-black'}`}>
           <p>
              Here's the rundown of my Work Experience:
           </p>
@@ -65,7 +69,9 @@ const About = () => {
             {experiences.map((experience, index) => (
               <VerticalTimelineElement
                 key={experience.company_name}
-                date={experience.date}
+                date={<span className={`${theme === 'night' ? 'text-white' : 'text-black'}`}>
+                  {experience.date}
+                  </span>}
                 iconStyle={{ background: experience.iconBg }}
                 icon={
                   <div className='flex justify-center items-center w-full h-full'>
