@@ -19,6 +19,7 @@ const projects = [
     description: 'Machine Learning Model that translates Malaysian Sign Language (MSL) in real-time.',
     image: tj,
     tech: ['Python', 'TensorFlow', 'OpenCV', 'Jupyter Notebook', 'MediaPipe', 'LSTM'],
+    github: 'https://github.com/arsh0570/MSL_translator',
     paper: 'https://www.researchgate.net/publication/378422479_REAL_TIME_MALAYSIAN_SIGN_LANGUAGE_TRANSLATOR_-_TUTURJOM',
   },
   {
